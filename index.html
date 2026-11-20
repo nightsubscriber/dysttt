@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Я держу голову</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09090c; --bg2:#101016; --surface:#15151d; --line:#25252f; --line2:#33333f;
+  --text:#ededf3; --muted:#9696a6; --dim:#5e5e6c;
+  --hold:#2ee6a6; --impulse:#ff4a3d; --brain:#6f8cff; --heat:#ffb21e; --pain:#ff3d8f; --sky:#38c8ff;
+  --r:20px; --container:1200px; --pad:40px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:18px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;font-feature-settings:"cv11","ss01"}
+::selection{background:var(--hold);color:#000}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+.container{max-width:calc(var(--container) + var(--pad)*2);margin:0 auto;padding:0 var(--pad)}
+.num{font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;gap:12px;align-items:center;margin-bottom:28px;font-variant-numeric:tabular-nums}
+.num b{color:var(--c,var(--text));font-weight:700}
+.num::after{content:"";height:1px;width:48px;background:var(--line2)}
+h1,h2,h3{font-weight:800;letter-spacing:-.04em;line-height:.98}
+h1{font-size:clamp(46px,7.4vw,104px)}
+h2{font-size:clamp(36px,5.4vw,72px);margin-bottom:28px;max-width:16ch}
+h3{font-size:24px;letter-spacing:-.02em;line-height:1.2;margin-bottom:10px}
+p{color:#c9c9d4;max-width:60ch}
+p+p{margin-top:16px}
+.lead{font-size:clamp(19px,1.6vw,22px);color:#d6d6df;max-width:52ch}
+.c-hold{color:var(--hold)} .c-imp{color:var(--impulse)} .c-brain{color:var(--brain)} .c-heat{color:var(--heat)} .c-pain{color:var(--pain)}
+section{padding:140px 0;position:relative}
+.grid2{display:grid;grid-template-columns:5fr 7fr;gap:64px;align-items:center}
+.grid2.top{align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);position:relative;overflow:hidden}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:999px;background:#fff;color:#000;font-weight:700;font-size:16px;transition:transform .2s,background .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line2)}
+.btn:active{transform:scale(.97)}
+.small{font-size:14px;color:var(--muted)}
+.tag{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid var(--line2);color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block}
+
+/* top progress + side index */
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--hold),var(--sky),var(--brain),var(--pain),var(--impulse));z-index:50}
+#index{position:fixed;right:22px;top:50%;transform:translateY(-50%);z-index:40;display:flex;flex-direction:column;gap:10px}
+#index a{display:flex;align-items:center;justify-content:flex-end;gap:10px;text-decoration:none;color:var(--dim);font-size:12px;font-weight:600}
+#index a span{opacity:0;transform:translateX(6px);transition:.25s;white-space:nowrap}
+#index a i{width:6px;height:6px;border-radius:50%;background:var(--line2);transition:.25s}
+#index a:hover span{opacity:1;transform:none;color:var(--text)}
+#index a.on i{background:var(--text);transform:scale(1.4)}
+
+/* HERO */
+#hero{padding:120px 0 100px;min-height:100vh;display:flex;align-items:center}
+#hero .grid2{grid-template-columns:6fr 6fr}
+.hero-sub{margin-top:28px}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:36px}
+.sim{padding:24px;user-select:none;-webkit-user-select:none}
+.sim-stage{position:relative;aspect-ratio:1/0.92;border-radius:14px;background:radial-gradient(120% 90% at 50% 20%,#1a1a24 0,#0e0e13 70%);overflow:hidden}
+.sim-stage svg{width:100%;height:100%;display:block}
+.sim-status{position:absolute;top:14px;left:14px;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 10px;border-radius:999px;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);font-weight:700;font-size:15px}
+.sim-status .em{font-size:22px;line-height:1}
+.sim-flash{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);font-weight:800;color:var(--impulse);font-size:15px;letter-spacing:.06em;text-transform:uppercase;opacity:0;pointer-events:none}
+.sim-flash.go{animation:flash .6s ease-out}
+@keyframes flash{0%{opacity:1;transform:translate(-50%,-50%) scale(1.3)}100%{opacity:0;transform:translate(-50%,-90%) scale(1)}}
+.sim-controls{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;margin-top:20px}
+.hold-btn{width:112px;height:112px;border-radius:50%;background:#1d1d27;border:2px solid var(--line2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:13px;font-weight:700;touch-action:none;transition:background .2s,border-color .2s,box-shadow .2s,transform .1s}
+.hold-btn .em{font-size:38px;line-height:1}
+.hold-btn.on{background:rgba(46,230,166,.12);border-color:var(--hold);box-shadow:0 0 0 8px rgba(46,230,166,.08),0 0 40px rgba(46,230,166,.25);transform:scale(.97)}
+.meters{display:grid;gap:12px}
+.meter label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.meter .bar{height:8px;border-radius:9px;background:#22222c;overflow:hidden}
+.meter .bar i{display:block;height:100%;width:50%;border-radius:9px;transition:width .15s linear}
+.sim-info{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line);font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sim-info b{color:var(--text)}
+.sim-msg{min-height:48px;margin-top:14px;font-size:15px;color:#d9d9e2}
+
+/* facts */
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px}
+.fact{padding:32px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
+.fact .big{font-size:56px;font-weight:900;letter-spacing:-.05em;line-height:1;margin-bottom:18px}
+.fact p{font-size:16px}
+
+/* timeline */
+.tl{position:relative;margin-top:16px}
+.tl::before{content:"";position:absolute;left:11px;top:8px;bottom:8px;width:2px;background:linear-gradient(var(--heat),var(--impulse),var(--pain))}
+.tl-item{position:relative;padding-left:52px;padding-bottom:40px}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::before{content:"";position:absolute;left:4px;top:6px;width:16px;height:16px;border-radius:50%;background:var(--bg);border:3px solid var(--c,var(--heat))}
+.tl-when{font-size:14px;font-weight:700;color:var(--c,var(--heat));letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
+.tl-item p{font-size:17px}
+
+/* mechanism */
+.mech{padding:28px}
+.mech svg{width:100%;height:auto;display:block}
+.flow{stroke-dasharray:6 14;animation:flow 0.9s linear infinite}
+.flow.slow{animation-duration:1.6s}
+@keyframes flow{to{stroke-dashoffset:-40}}
+.tension{margin-top:20px}
+.tension .bar{height:16px;border-radius:12px;background:#22222c;overflow:hidden;position:relative}
+.tension .bar i{position:absolute;inset:0 auto 0 0;width:82%;background:linear-gradient(90deg,var(--heat),var(--impulse));border-radius:12px}
+.tension-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap}
+
+/* video */
+.video-wrap{position:relative;border-radius:var(--r);overflow:hidden;background:#000;border:1px solid var(--line);aspect-ratio:16/9}
+.video-wrap video{width:100%;height:100%;display:block;object-fit:contain;background:#000}
+.video-empty{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px;background:repeating-linear-gradient(45deg,#111117 0 14px,#0d0d12 14px 28px)}
+.video-empty code{font-family:inherit;font-weight:800;color:var(--hold);font-size:20px}
+.video-wrap.missing .video-empty{display:flex}
+.v-ind{position:absolute;top:16px;left:16px;display:none;align-items:center;gap:12px;padding:10px 18px 10px 12px;border-radius:999px;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);font-weight:800;font-size:17px;border:2px solid transparent;transition:border-color .2s}
+.v-ind .em{font-size:30px;line-height:1}
+.v-ind.hold{border-color:var(--hold);color:var(--hold)}
+.v-ind.free{border-color:var(--impulse);color:var(--impulse)}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px}
+.legend div{display:flex;gap:18px;align-items:center;padding:22px 24px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
+.legend .em{font-size:44px;line-height:1}
+.legend b{display:block;font-size:18px;margin-bottom:2px}
+.legend p{font-size:15px}
+.legend .h b{color:var(--hold)} .legend .f b{color:var(--impulse)}
+
+/* disney */
+.disney{padding:0}
+.scene{position:relative;aspect-ratio:16/10;overflow:hidden}
+.scene svg{width:100%;height:100%;display:block;transition:filter .3s}
+.heat-veil{position:absolute;inset:0;pointer-events:none;background:radial-gradient(70% 70% at 50% 50%,transparent 30%,rgba(255,40,30,.55) 100%);opacity:0;animation:throb 1.4s ease-in-out infinite}
+@keyframes throb{50%{filter:brightness(1.4)}}
+.disney-ui{padding:24px 28px 28px;display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center}
+.thermo{font-size:44px;font-weight:900;letter-spacing:-.04em;font-variant-numeric:tabular-nums;min-width:150px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:10px;border-radius:10px;background:linear-gradient(90deg,var(--hold),var(--heat),var(--impulse));outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;border:4px solid #000;box-shadow:0 0 0 2px #fff;cursor:grab}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:4px solid #000;cursor:grab}
+.caption{min-height:84px;font-size:19px;color:#e6e6ee;margin-top:28px;transition:opacity .3s}
+.punch{font-size:clamp(30px,4vw,54px);font-weight:800;letter-spacing:-.035em;line-height:1.05;margin-top:80px;max-width:22ch}
+.punch em{font-style:normal;color:var(--impulse)}
+
+/* arm */
+.steps{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap}
+.step-btn{padding:10px 18px;border-radius:999px;border:1px solid var(--line2);font-weight:700;font-size:15px;color:var(--muted);transition:.2s}
+.step-btn.on{background:var(--text);color:#000;border-color:var(--text)}
+.arm-stage svg{width:100%;height:auto;display:block}
+.arm-text{min-height:240px}
+.arm-text .do{font-size:21px;color:#fff;font-weight:600;line-height:1.45;margin-bottom:20px;max-width:34ch}
+.map{padding:20px 22px;border-radius:16px;background:var(--bg2);border:1px solid var(--line);margin-top:8px}
+.map small{display:block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.map p{font-size:16px}
+.timer{display:flex;align-items:center;gap:16px;margin-top:20px;flex-wrap:wrap}
+.timer .t{font-size:32px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.combine{margin-top:72px;padding:40px;border-radius:var(--r);background:linear-gradient(120deg,rgba(255,74,61,.12),rgba(255,178,30,.08) 60%,rgba(46,230,166,.06));border:1px solid var(--line)}
+.combine p{font-size:20px;color:#ececf2;max-width:62ch}
+
+/* attention */
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:24px}
+.slot{aspect-ratio:1.5/1;border-radius:14px;border:1px dashed var(--line2);display:flex;align-items:flex-end;padding:14px;font-size:14px;font-weight:600;line-height:1.25;color:var(--dim);transition:background .5s,border-color .5s,color .5s,transform .5s}
+.slot.free{border-style:solid;border-color:rgba(56,200,255,.35);background:rgba(56,200,255,.08);color:#bfeaff}
+.slot.busy{border-style:solid;border-color:rgba(255,74,61,.45);background:rgba(255,74,61,.14);color:#ffd0cb}
+.slot.busy.j{animation:jit .25s}
+@keyframes jit{30%{transform:translate(2px,-1px) rotate(.6deg)}60%{transform:translate(-2px,1px)}}
+.toggle{display:inline-flex;padding:4px;border-radius:999px;background:var(--surface);border:1px solid var(--line);margin-top:28px}
+.toggle button{padding:10px 18px;border-radius:999px;font-weight:700;font-size:15px;color:var(--muted);transition:.25s}
+.toggle button.on{background:var(--text);color:#000}
+.slots-cap{padding:0 24px 22px;display:flex;justify-content:space-between;font-size:14px;color:var(--muted)}
+
+/* body map */
+.body-svg{width:100%;height:auto;display:block}
+.hs{cursor:pointer}
+.hs circle.ring{animation:ring 2.2s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes ring{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.4);opacity:0}}
+.hs.on circle.core{fill:#fff}
+.hs text{font-size:13px;font-weight:800;fill:#000;pointer-events:none}
+.pts{display:grid;gap:8px}
+.pt{display:grid;grid-template-columns:32px 1fr;gap:14px;padding:14px 16px;border-radius:14px;border:1px solid transparent;cursor:pointer;transition:.2s;text-align:left}
+.pt:hover{background:var(--surface)}
+.pt.on{background:var(--surface);border-color:var(--line2)}
+.pt .n{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#000;background:var(--c)}
+.pt b{display:block;font-size:17px;color:#fff;margin-bottom:2px}
+.pt span{display:block;font-size:15px;color:var(--muted);max-height:0;overflow:hidden;transition:max-height .35s}
+.pt.on span{max-height:200px;color:#cfcfd9}
+
+/* stress chart */
+.chart{padding:24px}
+.chart canvas{width:100%;height:300px;display:block}
+.chart.shake{animation:shake .12s infinite}
+@keyframes shake{25%{transform:translate(2px,-1px)}50%{transform:translate(-2px,1px)}75%{transform:translate(1px,2px)}}
+.chart-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:12px}
+.chart-legend span{display:inline-flex;align-items:center;gap:8px}
+.chart-legend i{width:18px;height:3px;border-radius:2px;display:inline-block}
+.arousal{margin-top:22px}
+.arousal-row{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:10px;font-weight:600}
+.chart-state{font-weight:800;font-size:15px;margin-top:14px;min-height:24px}
+
+/* faces */
+.faces{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.face-card{padding:24px;text-align:center}
+.face-card svg{width:100%;max-width:240px;height:auto;margin:0 auto;display:block}
+.face-card small{display:block;margin-top:12px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.mouth-real.shake{animation:lip .09s infinite}
+@keyframes lip{25%{transform:translate(1px,.6px)}50%{transform:translate(-1px,-.4px)}75%{transform:translate(.6px,-.8px)}}
+
+/* time grid */
+.years{display:grid;gap:8px;margin-top:8px}
+.yr{display:grid;grid-template-columns:52px 1fr;gap:14px;align-items:center}
+.yr b{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums;font-weight:600}
+.months{display:grid;grid-template-columns:repeat(12,1fr);gap:6px}
+.mo{height:20px;border-radius:5px;background:#1c1c25;transition:background .4s}
+.mo.f{background:var(--impulse)}
+.mo.now{background:var(--pain);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.time-big{font-size:clamp(64px,9vw,128px);font-weight:900;letter-spacing:-.06em;line-height:.9;color:var(--impulse)}
+
+/* phrases */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px}
+.card{perspective:1200px;min-height:230px;cursor:pointer}
+.card-in{position:relative;width:100%;height:100%;min-height:230px;transition:transform .7s cubic-bezier(.2,.7,.2,1);transform-style:preserve-3d}
+.card.flip .card-in{transform:rotateY(180deg)}
+.card-f,.card-b{position:absolute;inset:0;border-radius:var(--r);padding:28px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;justify-content:space-between}
+.card-f{background:var(--surface);border:1px solid var(--line)}
+.card-f q{font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:1.25;quotes:"«" "»"}
+.card-b{background:#1b0f12;border:1px solid rgba(255,74,61,.35);transform:rotateY(180deg)}
+.card-b p{font-size:17px;color:#f2dcd9}
+.card small{font-size:13px;color:var(--dim);font-weight:600}
+
+/* asks */
+.asks{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:56px}
+.ask{padding:32px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface)}
+.ask .k{font-size:15px;font-weight:800;color:var(--hold);margin-bottom:14px;font-variant-numeric:tabular-nums}
+.ask p{font-size:18px;color:#e4e4ec}
+footer{padding:80px 0 60px;border-top:1px solid var(--line)}
+footer p{font-size:14px;color:var(--dim);max-width:70ch}
+
+@media (max-width:1100px){#index{display:none}}
+@media (max-width:900px){
+  :root{--pad:20px}
+  section{padding:96px 0}
+  .grid2,#hero .grid2{grid-template-columns:1fr;gap:40px}
+  .facts,.cards{grid-template-columns:1fr}
+  .asks,.legend{grid-template-columns:1fr}
+  .disney-ui{grid-template-columns:1fr;gap:14px}
+  .arm-text{min-height:0}
+  #hero{padding-top:80px}
+}
+@media (max-width:520px){
+  body{font-size:17px}
+  .faces{grid-template-columns:1fr 1fr;gap:10px}
+  .face-card{padding:14px}
+  .sim{padding:16px}
+  .hold-btn{width:96px;height:96px}
+  .slots{gap:8px;padding:16px}
+  .slot{font-size:12px;padding:10px}
+  .months{gap:3px}
+  .yr{grid-template-columns:40px 1fr;gap:8px}
+}
+@media (prefers-reduced-motion:reduce){
+  .reveal{transition:none;opacity:1;transform:none}
+  .flow,.hs circle.ring,.heat-veil,.chart.shake,.mo.now{animation:none}
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<nav id="index"></nav>
+
+<!-- ============ HERO / СИМУЛЯТОР ============ -->
+<section id="hero" data-label="Начало">
+  <div class="container grid2">
+    <div class="reveal">
+      <div class="num" style="--c:var(--hold)"><b>00</b> Попробуй на себе</div>
+      <h1>Я держу голову.<br><span class="c-hold">Каждую секунду.</span></h1>
+      <p class="lead hero-sub">Со стороны этого не видно. Словами объяснить у меня так и не получилось, поэтому я сделал эту страницу. Здесь можно хотя бы немного почувствовать, как я живу.</p>
+      <div class="hero-meta">
+        <span class="tag"><span class="dot c-hold"></span>✊ держу сам</span>
+        <span class="tag"><span class="dot c-imp"></span>🖐️ отпустил, дальше само</span>
+      </div>
+    </div>
+
+    <div class="panel sim reveal" id="sim">
+      <div class="sim-stage" id="simStage">
+        <svg viewBox="0 0 400 370" aria-label="Голова на шее">
+          <defs>
+            <radialGradient id="headG" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="#2a2a36"/><stop offset="1" stop-color="#191921"/></radialGradient>
+          </defs>
+          <!-- плечи -->
+          <path d="M40 370 C60 318 120 300 165 296 L235 296 C280 300 340 318 360 370Z" fill="#1b1b24" stroke="#2f2f3b" stroke-width="2"/>
+          <g id="neckG">
+            <path d="M168 230 L232 230 L240 306 L160 306Z" fill="#20202a" stroke="#31313d" stroke-width="2"/>
+            <g id="neckMus" stroke-width="3" stroke-linecap="round" fill="none">
+              <path d="M176 236 L192 304"/><path d="M224 236 L208 304"/><path d="M200 240 L200 300" opacity=".5"/>
+            </g>
+            <g id="headG2">
+              <ellipse id="jawShade" cx="200" cy="222" rx="54" ry="16" fill="#0d0d12" opacity="0"/>
+              <ellipse cx="128" cy="150" rx="12" ry="22" fill="#23232d"/>
+              <ellipse cx="272" cy="150" rx="12" ry="22" fill="#23232d"/>
+              <ellipse cx="200" cy="140" rx="74" ry="92" fill="url(#headG)" stroke="#34343f" stroke-width="2"/>
+              <g id="faceG">
+                <path d="M160 116 q14 -8 28 0" stroke="#7a7a8a" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M212 116 q14 -8 28 0" stroke="#7a7a8a" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <circle cx="174" cy="136" r="7" fill="#ededf3"/><circle cx="226" cy="136" r="7" fill="#ededf3"/>
+                <path d="M200 146 l-6 22 h12" stroke="#4a4a58" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <path id="simMouth" d="M180 192 q20 6 40 0" stroke="#ededf3" stroke-width="4" fill="none" stroke-linecap="round"/>
+              </g>
+            </g>
+          </g>
+          <!-- корсет внимания -->
+          <ellipse id="corset" cx="200" cy="262" rx="58" ry="14" fill="none" stroke="var(--hold)" stroke-width="3" stroke-dasharray="4 8" opacity="0"/>
+          <!-- стрелка импульса -->
+          <g id="impArrow" opacity="0">
+            <path d="M200 60 L200 18" stroke="var(--impulse)" stroke-width="5" stroke-linecap="round"/>
+            <path d="M188 30 L200 14 L212 30" stroke="var(--impulse)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+        </svg>
+        <div class="sim-status" id="simStatus"><span class="em">🖐️</span><span>Отпустил</span></div>
+        <div class="sim-flash" id="simFlash">рывок</div>
+      </div>
+
+      <div class="sim-controls">
+        <button class="hold-btn" id="holdBtn" aria-label="Держать голову"><span class="em">✊</span><span>Держать</span></button>
+        <div class="meters">
+          <div class="meter"><label><span>Силы</span><span id="stTxt">100</span></label><div class="bar"><i id="stBar" style="background:var(--hold)"></i></div></div>
+          <div class="meter"><label><span>Боль и зажатость</span><span id="pnTxt">0</span></label><div class="bar"><i id="pnBar" style="background:var(--impulse)"></i></div></div>
+        </div>
+      </div>
+      <div class="sim-msg" id="simMsg">Голову уже унесло. Зажми кнопку (или пробел) и не отпускай, так ты вернёшь её в центр.</div>
+      <div class="sim-info">
+        <span>Ты держишь: <b id="tHold">00:00</b></span>
+        <span>Прорвалось рывков: <b id="tJerk">0</b></span>
+        <span>Я держу: <b id="tMine">…</b></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 01 ЧТО СО МНОЙ ============ -->
+<section id="s1" data-label="Что со мной">
+  <div class="container">
+    <div class="reveal">
+      <div class="num" style="--c:var(--brain)"><b>01</b> Что со мной</div>
+      <h2>Мозг всё время пытается свернуть мне голову</h2>
+      <p class="lead">У меня что-то вроде шейной дистонии. Мозг без перерыва отправляет мышцам шеи команду увести голову до упора. Я перебиваю эту команду волей. Получается такой корсет, сделанный из внимания, и снять его я не могу.</p>
+    </div>
+    <div class="facts">
+      <div class="fact reveal"><div class="big c-imp">0,1 с</div><h3>Если отпустить</h3><p>Голову за долю секунды уносит в крайнее положение: влево, вправо или назад и вверх. Куда именно, я заранее не знаю. Там её ещё и поворачивает и намертво зажимает.</p></div>
+      <div class="fact reveal"><div class="big c-hold">↺</div><h3>Можно вернуть</h3><p>Усилием я возвращаю голову в центр. Стоит отпустить, и её снова выбрасывает до упора. Так по кругу, сколько угодно раз.</p></div>
+      <div class="fact reveal"><div class="big c-heat">24/7</div><h3>Даже когда держу</h3><p>Сквозь контроль прорываются короткие резкие рывки. Никакого предчувствия перед ними нет, они случаются когда угодно.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 КАК НАЧАЛОСЬ ============ -->
+<section id="s2" data-label="Как началось">
+  <div class="container grid2 top">
+    <div class="reveal">
+      <div class="num" style="--c:var(--heat)"><b>02</b> Как это началось</div>
+      <h2>Одно глупое движение в ~14-15 году</h2>
+      <p> Зачем-то я хотел повернуть голову, как в мультиках, и помогал себе руками, чтобы хрустнуть шеей. В крайней точке стало очень больно.</p>
+      <p>Сейчас мне кажется, что мозг с тех пор пытается закончить то движение. А закончиться оно не может.</p>
+    </div>
+    <div class="tl reveal">
+      <div class="tl-item" style="--c:var(--heat)"><div class="tl-when">2014–2015</div><p>По дурости свернул себе шею. Резкая боль в крайней точке. Тогда я не придал этому значения.</p></div>
+      <div class="tl-item" style="--c:#ff8a2a"><div class="tl-when">Дальше</div><p>Симптомы появились не сразу, точный момент я не помню. Сначала они были слабее, потом становились сильнее.</p></div>
+      <div class="tl-item" style="--c:var(--impulse)"><div class="tl-when">2020 год</div><p>МРТ: протрузии и смещения позвонков в шейном, грудном и поясничном отделах. Мануальный терапевт вправлял шейные позвонки, я ходил в воротнике. На следующий день они снова были смещены.</p></div>
+      <div class="tl-item" style="--c:#ff4466"><div class="tl-when">Все эти годы</div><p>Массажи, остеопатия, растяжки, врачи. Ботокс колют в отдельные мышцы, а у меня задействовано почти всё вокруг шеи.</p></div>
+      <div class="tl-item" style="--c:var(--pain)"><div class="tl-when">Сейчас</div><p>Больше 11 лет. Сильнее, чем в начале. Средства, которое убирает причину, пока нет.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 МЕХАНИЗМ ============ -->
+<section id="s3" data-label="Почему массаж не помогает">
+  <div class="container grid2">
+    <div class="reveal">
+      <div class="num" style="--c:var(--brain)"><b>03</b> Механизм</div>
+      <h2>Мышцы только выполняют приказ</h2>
+      <p>Приказ идёт из мозга. Мышцы можно расслабить: массажем, остеопатией, давлением на подзатылочные. Можно напрячь их до предела, чтобы потом отпустило. Через пару минут всё возвращается, потому что сигнал никуда не делся.</p>
+      <p>Бывает, что сил у мышц уже нет совсем. Сигнал всё равно приходит.</p>
+      <p>Это не психосоматика. Сигнал идёт всегда: дома, в покое, в хорошем настроении. Стресс делает хуже, но и без стресса он не выключается.</p>
+    </div>
+    <div class="panel mech reveal">
+      <svg viewBox="0 0 560 380">
+        <!-- links -->
+        <path id="lnBrain" d="M140 90 C 260 90, 300 190, 330 190" stroke="var(--impulse)" stroke-width="4" fill="none" class="flow"/>
+        <path d="M140 300 C 260 300, 300 210, 330 210" stroke="var(--hold)" stroke-width="4" fill="none" class="flow slow"/>
+        <!-- brain -->
+        <g>
+          <circle cx="90" cy="90" r="56" fill="rgba(111,140,255,.12)" stroke="var(--brain)" stroke-width="2"/>
+          <text x="90" y="86" text-anchor="middle" fill="#fff" font-weight="800" font-size="18">Мозг</text>
+          <text x="90" y="108" text-anchor="middle" fill="#a9b8ff" font-size="13">«до упора!»</text>
+        </g>
+        <g>
+          <circle cx="90" cy="300" r="56" fill="rgba(46,230,166,.1)" stroke="var(--hold)" stroke-width="2"/>
+          <text x="90" y="296" text-anchor="middle" fill="#fff" font-weight="800" font-size="18">Я</text>
+          <text x="90" y="318" text-anchor="middle" fill="#9ff3d6" font-size="13">«держать»</text>
+        </g>
+        <g>
+          <rect x="330" y="130" width="200" height="140" rx="22" fill="#1b1b24" stroke="#3a3a46" stroke-width="2"/>
+          <text x="430" y="172" text-anchor="middle" fill="#fff" font-weight="800" font-size="18">Мышцы шеи</text>
+          <text x="430" y="196" text-anchor="middle" fill="#9696a6" font-size="13">тянут в одну сторону,</text>
+          <text x="430" y="214" text-anchor="middle" fill="#9696a6" font-size="13">держат в другую</text>
+          <text id="relaxTag" x="430" y="246" text-anchor="middle" fill="var(--heat)" font-weight="700" font-size="13" opacity="0">расслаблены… пока</text>
+        </g>
+        <text x="236" y="112" fill="var(--impulse)" font-size="13" font-weight="700">сигнал, всегда</text>
+        <text x="236" y="296" fill="var(--hold)" font-size="13" font-weight="700">воля, всегда</text>
+      </svg>
+      <div class="tension">
+        <div class="small" style="margin-bottom:8px">Напряжение мышц</div>
+        <div class="bar"><i id="tBar"></i></div>
+        <div class="tension-row">
+          <button class="btn" id="relaxBtn">Расслабить мышцы</button>
+          <span class="small">Время ускорено: 4 секунды здесь ≈ пара минут в жизни</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 ВИДЕО ============ -->
+<section id="s4" data-label="Видео">
+  <div class="container">
+    <div class="reveal">
+      <div class="num" style="--c:var(--impulse)"><b>04</b> Как это выглядит</div>
+      <h2>Что происходит, когда я отпускаю</h2>
+      <p class="lead" style="margin-bottom:40px">Смотри на значок. Кулак значит, что голову держу я. Ладонь значит, что я отпустил и дальше всё делает сигнал.</p>
+    </div>
+    <div class="video-wrap reveal" id="vWrap">
+      <video id="vid" src="neck.mp4" controls playsinline preload="metadata"></video>
+      <div class="v-ind" id="vInd"><span class="em">✊</span><span>Держу сам</span></div>
+      <div class="video-empty"><span style="font-size:40px">🎬</span><div>Положи видео рядом с этим файлом и назови его</div><code>neck.mp4</code></div>
+    </div>
+    <div class="legend reveal">
+      <div class="h"><span class="em">✊</span><span><b>Кулак сжат</b><p>Я держу голову сам. Это видят все, кто со мной общается.</p></span></div>
+      <div class="f"><span class="em">🖐️</span><span><b>Ладонь раскрыта</b><p>Я отпустил. Всё остальное происходит без меня.</p></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 ДИСНЕЙЛЕНД ============ -->
+<section id="s5" data-label="Диснейленд">
+  <div class="container">
+    <div class="reveal">
+      <div class="num" style="--c:var(--heat)"><b>05</b> Первая метафора</div>
+      <h2>Диснейленд с температурой</h2>
+      <p class="lead">Ты долго мечтал туда попасть и наконец приехал с друзьями. Горки, огни, музыка. Двигай ползунок.</p>
+    </div>
+    <div class="panel disney reveal" style="margin-top:44px">
+      <div class="scene">
+        <svg id="park" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1060"/><stop offset=".6" stop-color="#6b1f8a"/><stop offset="1" stop-color="#ff6a6a"/></linearGradient>
+            <linearGradient id="castle" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd1f0"/><stop offset="1" stop-color="#b48cff"/></linearGradient>
+          </defs>
+          <rect width="800" height="450" fill="url(#sky)"/>
+          <g id="stars" fill="#fff"></g>
+          <!-- горки -->
+          <path d="M-10 330 C 60 120, 120 120, 160 260 S 250 380, 300 200 S 360 300, 380 340" stroke="#38c8ff" stroke-width="6" fill="none"/>
+          <path d="M-10 340 C 60 130, 120 130, 160 270 S 250 390, 300 210 S 360 310, 380 350" stroke="#38c8ff" stroke-width="2" fill="none" opacity=".6"/>
+          <g stroke="#2a8fbf" stroke-width="3"><line x1="60" y1="190" x2="60" y2="450"/><line x1="160" y1="262" x2="160" y2="450"/><line x1="300" y1="205" x2="300" y2="450"/></g>
+          <!-- замок -->
+          <g>
+            <rect x="350" y="230" width="140" height="220" fill="url(#castle)"/>
+            <rect x="330" y="190" width="40" height="260" fill="#e9b8ff"/><polygon points="325,192 350,120 375,192" fill="#ff5fa2"/>
+            <rect x="470" y="190" width="40" height="260" fill="#e9b8ff"/><polygon points="465,192 490,120 515,192" fill="#ff5fa2"/>
+            <rect x="398" y="150" width="44" height="300" fill="#f6d2ff"/><polygon points="392,152 420,60 448,152" fill="#ff3d8f"/>
+            <path d="M405 450 v-50 a15 15 0 0 1 30 0 v50z" fill="#5a2a8a"/>
+            <circle cx="420" cy="190" r="8" fill="#ffe27a"/>
+            <line x1="420" y1="60" x2="420" y2="36" stroke="#fff" stroke-width="2"/><path d="M420 36 l18 6 l-18 6z" fill="#ffb21e"/>
+          </g>
+          <!-- колесо обозрения -->
+          <g transform="translate(650 230)">
+            <line x1="0" y1="0" x2="-50" y2="220" stroke="#9fa8ff" stroke-width="5"/><line x1="0" y1="0" x2="50" y2="220" stroke="#9fa8ff" stroke-width="5"/>
+            <g id="wheel">
+              <circle r="130" fill="none" stroke="#ffb21e" stroke-width="5"/>
+              <circle r="118" fill="none" stroke="#ffb21e" stroke-width="2" opacity=".6"/>
+              <g id="spokes" stroke="#ffd36b" stroke-width="2"></g>
+              <g id="cabins"></g>
+            </g>
+            <circle r="10" fill="#fff"/>
+          </g>
+          <!-- шары -->
+          <g class="balloons">
+            <g><line x1="230" y1="160" x2="236" y2="230" stroke="#fff" opacity=".5"/><ellipse cx="230" cy="140" rx="16" ry="20" fill="#ff4a3d"/></g>
+            <g><line x1="258" y1="150" x2="248" y2="230" stroke="#fff" opacity=".5"/><ellipse cx="258" cy="130" rx="16" ry="20" fill="#2ee6a6"/></g>
+            <g><line x1="244" y1="125" x2="242" y2="230" stroke="#fff" opacity=".5"/><ellipse cx="244" cy="105" rx="16" ry="20" fill="#ffb21e"/></g>
+          </g>
+          <!-- гирлянда -->
+          <path d="M0 40 Q 200 90 400 40 T 800 40" stroke="#fff" stroke-opacity=".25" fill="none"/>
+          <g id="lights"></g>
+          <rect y="430" width="800" height="20" fill="#120a2a"/>
+        </svg>
+        <div class="heat-veil" id="veil"></div>
+      </div>
+      <div class="disney-ui">
+        <div class="thermo" id="thermo">36,6°</div>
+        <div>
+          <input type="range" id="temp" min="0" max="100" value="0" aria-label="Температура">
+          <div class="arousal-row"><span>Здоров</span><span>Температура 39,5</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="grid2" style="margin-top:12px;align-items:start">
+      <p class="caption reveal" id="caption">Ты здесь. Огни, музыка, друзья рядом. Ты ждал этого несколько месяцев.</p>
+      <div class="reveal">
+        <p style="margin-top:28px">Уехать домой нельзя. Друзья так ждали этого дня, и портить его им ты не хочешь. Ты идёшь на аттракционы и смеёшься, когда все смеются. Выходит натянуто, и это заметно. Ты как будто играешь роль.</p>
+        <p>Тебе ничего не поможет, кроме выздоровления.</p>
+      </div>
+    </div>
+    <p class="punch reveal">А теперь представь, что температура не спадает <em>одиннадцать лет</em>.</p>
+  </div>
+</section>
+
+<!-- ============ 06 РУКА ============ -->
+<section id="s6" data-label="Вытянутая рука">
+  <div class="container">
+    <div class="reveal">
+      <div class="num" style="--c:var(--hold)"><b>06</b> Вторая метафора</div>
+      <h2>Вытяни руку и держи</h2>
+      <p class="lead">Это лучше делать по-настоящему, прямо сейчас. Три шага.</p>
+    </div>
+    <div class="grid2" style="margin-top:44px">
+      <div class="arm-text reveal">
+        <div class="steps">
+          <button class="step-btn on" data-step="0">1. Держать</button>
+          <button class="step-btn" data-step="1">2. Бороться</button>
+          <button class="step-btn" data-step="2">3. Отпустить</button>
+        </div>
+        <div id="armCopy"></div>
+      </div>
+      <div class="panel arm-stage reveal">
+        <svg id="armSvg" viewBox="0 0 460 340">
+          <line x1="0" y1="322" x2="460" y2="322" stroke="#25252f" stroke-width="2"/>
+          <g id="armB" stroke="var(--impulse)" stroke-width="13" stroke-linecap="round" fill="none" opacity=".95">
+            <line id="bU"/><line id="bF"/>
+          </g>
+          <!-- тело -->
+          <line x1="190" y1="104" x2="186" y2="232" stroke="#3b3b48" stroke-width="22" stroke-linecap="round"/>
+          <line x1="186" y1="232" x2="176" y2="318" stroke="#3b3b48" stroke-width="16" stroke-linecap="round"/>
+          <line x1="186" y1="232" x2="204" y2="318" stroke="#33333f" stroke-width="16" stroke-linecap="round"/>
+          <circle cx="194" cy="66" r="28" fill="#2c2c38"/>
+          <path d="M221 62 l9 6 l-9 3z" fill="#2c2c38"/>
+          <circle id="painGlow" cx="192" cy="118" r="18" fill="var(--impulse)" opacity="0"/>
+          <g id="armA" stroke="var(--hold)" stroke-width="13" stroke-linecap="round"><line id="aL"/></g>
+          <circle id="aHand" r="10" fill="var(--hold)"/>
+          <circle id="bHand" r="10" fill="var(--impulse)"/>
+          <g id="arrDown" opacity="0"><line x1="0" y1="-62" x2="0" y2="-26" stroke="var(--impulse)" stroke-width="5" stroke-linecap="round"/><path d="M-9 -36 L0 -24 L9 -36" stroke="var(--impulse)" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+          <g id="arrUp" opacity="0"><line x1="0" y1="62" x2="0" y2="26" stroke="var(--hold)" stroke-width="5" stroke-linecap="round"/><path d="M-9 36 L0 24 L9 36" stroke="var(--hold)" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+          <text id="armLabel" x="440" y="36" text-anchor="end" font-size="15" font-weight="700" fill="#9696a6"></text>
+        </svg>
+      </div>
+    </div>
+    <div class="combine reveal">
+      <p><b>Теперь сложи обе метафоры.</b> Ты стоишь посреди праздника, о котором мечтал. У тебя температура. И всё это время ты держишь вытянутую руку, на которую давят сверху. Отпустить нельзя, иначе её заломит. Так выглядит мой обычный день.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 ВНИМАНИЕ ============ -->
+<section id="s7" data-label="Внимание">
+  <div class="container grid2">
+    <div class="reveal">
+      <div class="num" style="--c:var(--sky)"><b>07</b> Внимание</div>
+      <h2>Половина головы занята шеей</h2>
+      <p>Считается, что человек одновременно удерживает в голове примерно 7 ± 2 вещи. На них держится разговор, учёба, работа, шутки, планы.</p>
+      <p>У меня большая часть этих ячеек постоянно занята. Поэтому я могу казаться рассеянным, медленным или уставшим после обычного разговора.</p>
+      <div class="toggle" role="tablist">
+        <button class="on" data-mode="norm">У большинства</button>
+        <button data-mode="me">У меня</button>
+      </div>
+    </div>
+    <div class="panel reveal">
+      <div class="slots" id="slots"></div>
+      <div class="slots-cap"><span id="slotsFree">9 свободно</span><span>9 ячеек внимания</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 08 ТЕЛО ============ -->
+<section id="s8" data-label="Тело">
+  <div class="container grid2">
+    <div class="panel reveal" style="padding:20px">
+      <svg class="body-svg" id="bodySvg" viewBox="0 0 400 420">
+        <path d="M30 420 C 40 350 100 318 150 304 L250 304 C300 318 360 350 370 420Z" fill="#1b1b24" stroke="#2f2f3b" stroke-width="2"/>
+        <path d="M150 304 C 120 300 90 310 70 330" stroke="#ff9f43" stroke-opacity=".35" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <path d="M250 304 C 280 300 310 310 330 330" stroke="#ff9f43" stroke-opacity=".35" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <path d="M156 210 L244 210 L252 310 L148 310Z" fill="#20202a" stroke="#31313d" stroke-width="2"/>
+        <path d="M140 180 L196 312" stroke="#ff4a3d" stroke-opacity=".45" stroke-width="9" stroke-linecap="round"/>
+        <path d="M260 180 L204 312" stroke="#ff4a3d" stroke-opacity=".45" stroke-width="9" stroke-linecap="round"/>
+        <path d="M165 250 Q200 270 235 250 L245 310 L155 310Z" fill="#ff3d8f" fill-opacity=".12"/>
+        <ellipse cx="124" cy="140" rx="12" ry="22" fill="#23232d"/><ellipse cx="276" cy="140" rx="12" ry="22" fill="#23232d"/>
+        <path d="M126 120 C 126 40 274 40 274 120 C 274 175 250 215 200 222 C 150 215 126 175 126 120Z" fill="#22222c" stroke="#34343f" stroke-width="2"/>
+        <circle cx="174" cy="120" r="6" fill="#ededf3"/><circle cx="226" cy="120" r="6" fill="#ededf3"/>
+        <path d="M184 182 q16 4 32 0" stroke="#ededf3" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <g id="hsLayer"></g>
+      </svg>
+    </div>
+    <div class="reveal">
+      <div class="num" style="--c:var(--pain)"><b>08</b> Тело</div>
+      <h2>Где зажато и что от этого ломается</h2>
+      <div class="pts" id="pts"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 09 ВОЛНЕНИЕ ============ -->
+<section id="s9" data-label="Волнение">
+  <div class="container grid2">
+    <div class="reveal">
+      <div class="num" style="--c:var(--heat)"><b>09</b> Волнение</div>
+      <h2>Запаса почти нет</h2>
+      <p>Мышцы шеи работают даже когда я отдыхаю. Они уже на пределе. Хватает лёгкого волнения или просто возбуждения, чтобы перейти черту. Тогда начинается сильная тряска.</p>
+      <p>Поэтому любая мелочь, которая другого человека слегка взбодрит, у меня ощущается всем телом.</p>
+    </div>
+    <div class="panel chart reveal" id="chart">
+      <canvas id="cv"></canvas>
+      <div class="chart-legend">
+        <span><i style="background:var(--heat)"></i>моя шея</span>
+        <span><i style="background:#5e5e6c"></i>обычный человек в покое</span>
+        <span><i style="background:var(--impulse)"></i>предел мышц</span>
+      </div>
+      <div class="arousal">
+        <input type="range" id="arousal" min="0" max="100" value="0" aria-label="Волнение">
+        <div class="arousal-row"><span>Покой</span><span>Лёгкое волнение</span><span>Стресс</span></div>
+      </div>
+      <div class="chart-state" id="chartState"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10 НЕ Я ============ -->
+<section id="s10" data-label="Я это не я">
+  <div class="container grid2">
+    <div class="reveal">
+      <div class="num" style="--c:var(--pain)"><b>10</b> Самовыражение</div>
+      <h2>Я это как будто не я</h2>
+      <p>Простой пример: улыбнуться. К примеру, я захотел улыбнуться, но губы дрожат и лицо зажато. Выглядит натянуто, будто я притворяюсь.</p>
+      <p>Так со многим: со смехом, разговором, жестами. Я хочу что-то выразить, и выходит неуклюже и неискренне. Нет свободы, нет ощущения опоры. Я перестаю чувствовать себя собой.</p>
+      <p>Да и в целом, большинство желаний, порывов "выключились" из-за моего состояния (также см. про внимание и 7+-2 выше). Ведь мысли, порывы, действия, - все это генерируется из состояния.</p>
+      <p>В определенном состоянии определенная рамка внимания, восприятия, определенные 7+-2 элементов. Состояние определяет то как ты видишь мир, о чем думаешь, что чувствуешь.</p>
+      <p>Есть множество способов изменить состояние, но вот этот импульс даже на секунду не выключается. И как пример выше с Диснейлендом, я вынужден постоянно жить в аду.</p>
+      <p>Т. е. в этом состоянии ко мне приходят определенные мысли, определенные эмоции, определенный фильтр восприятия, "цвет", в который окрашивается мир.</p>
+      <p>То что я нахожусь в такой мета-позиции, т. е. "над" состоянием, смотрю на него со стороны и понимаю, что мое мировосприятие это все лишь его побочный продукт, - мне не особо помогает.</p>
+      <p>По итогу я живу "умом", в диссоциации. Тело с этими подергиваниями, эмоции и мысли вытекающие из этого состояния -> на все это я смотрю со стороны, я как будто нахожусь в клетке какой-то, из которой нет выхода. Какой-то бред получается, то что я не могу быть собой же</p>
+      <p>И вот у меня есть определенные ценности, представления, что я хотел бы того или иного, просто состояние отрезает мне возможность этим насладиться. То есть я чего то хочу, но в своем состоянии не хочу. Это шиза...</p>
+      <p>И поэтому, как я написал выше, я живу "умом". Не хочется мне чего-то телом эмоциями, но интеллектуально я бы этого хотел, я бы хотел этого если бы у меня не было этой хрени. И я отыгрываю, как будто актер. Ну со стороны может показаться неискренним очевидно из-за микросигналов всяких, невербалики, но в моей голове я строю картинку, определенный мирок "как правильно" лично для меня. Короче, живу "идеей", воображаемым миром внутри. Ну и отыгрывания эти это если чето касается других людей и моих убеждений "как правильнее было бы". На остальные мильен желаний которые были бы у меня в адекватном состоянии я забил</p>
+      <p>Тут мы приходим к смыслу жизни, а зачем ваще жить? У каждого свой ответ, вытекающий из убеждений, а убеждения это всего лишь определенная смысловая рамка, сжатие, обрезание опыта. Поэтому можно что угодно себе встроить, но... хотелось бы гедонистический моментик иметь мне... Без него как-то ваще фигово. Жить чисто логической идеей которая противоречит состоянию тяжко</p>
+      <p>Тело и психика это части одной системы. Как психика влияет на тело, так и тело влияет на психику, на состояние. И псих. проблемы всякие они все в теле находятся, а не просто где-то в неком абстрактном подсознании. Все они в зажимах, но зажимы можно снять. Я после нескольких часов непрерывной работы над мышцами и фасциями, связанными с шеей, несколько минут видел мир так, как видел более 11 лет назад, и я просто офигел от этого, я уже и забыл, каково это, это другое состояние, другой мир. Но импульс дергания естественно никуда не ушел и достаточно быстро опять задолбал мои мышцы</p>
+      <button class="btn" id="smileBtn" style="margin-top:32px">Улыбнуться</button>
+    </div>
+    <div class="faces reveal">
+      <div class="panel face-card">
+        <svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" fill="#22222c" stroke="#34343f" stroke-width="2"/>
+          <path id="eyeL1" d="M66 86 q10 0 20 0" stroke="#ededf3" stroke-width="5" fill="none" stroke-linecap="round"/><path id="eyeR1" d="M114 86 q10 0 20 0" stroke="#ededf3" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path id="mIn" d="M70 132 q30 4 60 0" stroke="var(--hold)" stroke-width="6" fill="none" stroke-linecap="round" style="transition:d .6s"/></svg>
+        <small>Что я чувствую внутри</small>
+      </div>
+      <div class="panel face-card">
+        <svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" fill="#22222c" stroke="#34343f" stroke-width="2"/>
+          <path d="M66 86 q10 0 20 0" stroke="#ededf3" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M114 86 q10 0 20 0" stroke="#ededf3" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <g class="mouth-real" id="mOutG"><path id="mOut" d="M70 132 q30 4 60 0" stroke="var(--impulse)" stroke-width="6" fill="none" stroke-linecap="round"/></g></svg>
+        <small>Что видят другие</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11 ВРЕМЯ ============ -->
+<section id="s11" data-label="Время">
+  <div class="container grid2 top">
+    <div class="reveal">
+      <div class="num" style="--c:var(--impulse)"><b>11</b> Время</div>
+      <div class="time-big" id="monthsBig">140</div>
+      <p class="small" style="margin:8px 0 32px">месяцев с этим, примерно</p>
+      <p>Мне постоянно говорили: «Ты же молодой» и «Университет лучшее время в жизни, надо было наслаждаться им и ценить». У меня "университетского времени" не было. Были попытки вылечить то, что пока не лечится. Как будто я учёный, который должен сам найти лекарство. И параллельно надо учиться, работать и как-то жить.</p>
+      <p>Я всегда понимал, что молодость надо проживать. Понимал прямо в моменте и ничего не мог сделать. Мечты, которые были тогда, сейчас уже не про меня, даже если завтра всё пройдёт.</p>
+    </div>
+    <div class="years reveal" id="years"></div>
+  </div>
+</section>
+
+<!-- ============ 12 ЧТО Я СЛЫШУ ============ -->
+<section id="s12" data-label="Что я слышу">
+  <div class="container">
+    <div class="reveal">
+      <div class="num" style="--c:var(--impulse)"><b>12</b> Что я слышу</div>
+      <h2>Фразы, после которых я молчу</h2>
+      <p class="lead">Их говорят из добрых побуждений. Нажми на карточку, чтобы увидеть, как они звучат с моей стороны.</p>
+    </div>
+    <div class="cards" id="cards"></div>
+  </div>
+</section>
+
+<!-- ============ 13 О ЧЁМ ПРОШУ ============ -->
+<section id="s13" data-label="О чём прошу">
+  <div class="container">
+    <div class="reveal">
+      <div class="num" style="--c:var(--hold)"><b>13</b> О чём я прошу</div>
+      <h2>Мне не нужно, чтобы меня чинили</h2>
+      <p class="lead">Полностью понять другого человека невозможно, я это знаю. Мне хватит, если ты станешь чуть ближе к этому.</p>
+    </div>
+    <div class="asks">
+      <div class="ask reveal"><div class="k">01</div><p>Поверь, что это реально, даже если со стороны ничего не видно.</p></div>
+      <div class="ask reveal"><div class="k">02</div><p>Вместо советов спроси, что я уже пробовал. Скорее всего, пробовал.</p></div>
+      <div class="ask reveal"><div class="k">03</div><p>Если я раздражён, рассеян или быстро устал, вспомни про шею. Чаще всего дело в ней.</p></div>
+      <div class="ask reveal"><div class="k">04</div><p>Предыдущие три пункта выдумала нейронка. Этот написал я. Круто?</p></div>
+    </div>
+    <p class="punch reveal" style="margin-top:96px">Спасибо, что дочитал(а) до конца. А теперь купи мой курс... шучу! юмор!</p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>Не за что.</p>
+  </div>
+</footer>
+
+<script>
+/* =========================================================
+   НАСТРОЙКИ
+   ========================================================= */
+const START = new Date(2015, 0, 1);  // примерно когда всё началось
+
+/* Метки для видео neck.mp4.
+   Укажи, с какой по какую секунду ты держишь голову (hold),
+   а с какой отпускаешь (free). Значок над видео будет меняться сам.
+   Если оставить список пустым, значок над видео не показывается. */
+const VIDEO_MARKS = [
+  { from: 0,   to: 1.5,  state: 'hold' },
+  { from: 1.5,   to: 3.5, state: 'free' },
+  { from: 3.5,  to: 4.5, state: 'hold' },
+  { from: 4.5,   to: 6.3, state: 'free' },
+  { from: 6.3,  to: 7.5, state: 'hold' },
+  { from: 7.5,  to: 9.4, state: 'free' },
+  { from: 9.4,  to: 10.8, state: 'hold' },
+  { from: 10.8,  to: 12.8, state: 'free' },
+  { from: 12.8,  to: 14, state: 'hold' },
+  { from: 14,  to: 15.6, state: 'free' },
+  { from: 15.6,  to: 17.5, state: 'hold' },
+  { from: 17.5,  to: 23.8, state: 'free' },
+  { from: 23.8,  to: 25, state: 'hold' },
+  { from: 25,  to: 27.8, state: 'free' },
+  { from: 27.8,  to: 29, state: 'hold' },
+  { from: 29,  to: 32.7, state: 'free' },
+  { from: 32.7,  to: 34, state: 'hold' },
+  { from: 34,  to: 36.8, state: 'free' },
+  { from: 36.8,  to: 38, state: 'hold' },
+  { from: 38,  to: 41, state: 'free' },
+  { from: 41,  to: 41.9, state: 'hold' },
+  { from: 41.9,  to: 46.6, state: 'free' },
+  { from: 46.6,  to: 47.5, state: 'hold' },
+  { from: 47.5,  to: 48.9, state: 'free' },
+  { from: 48.9,  to: 50, state: 'hold' },
+  { from: 50,  to: 51, state: 'free' },
+  { from: 51,  to: 52, state: 'hold' },
+  { from: 52,  to: 53.5, state: 'free' },
+  { from: 53.5,  to: 54.9, state: 'hold' },
+  { from: 54.9,  to: 58.5, state: 'free' },
+  { from: 58.5,  to: 59.5, state: 'hold' },
+  { from: 59.5,  to: 66.5, state: 'free' },
+  { from: 66.5,  to: 67.5, state: 'hold' },
+  { from: 67.5,  to: 69.6, state: 'free' },
+  { from: 69.6,  to: 73.2, state: 'hold' },
+  { from: 73.2,  to: 76.2, state: 'free' },
+  { from: 76.2,  to: 77.5, state: 'hold' },
+  { from: 77.5,  to: 80, state: 'free' },
+];
+
+/* ========================================================= */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const rnd = (a, b) => a + Math.random() * (b - a);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- reveal + nav + progress ---------- */
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12 });
+$$('.reveal').forEach(el => io.observe(el));
+
+const secs = $$('section[data-label]');
+const nav = $('#index');
+secs.forEach(s => { const a = document.createElement('a'); a.href = '#' + s.id; a.innerHTML = `<span>${s.dataset.label}</span><i></i>`; nav.appendChild(a); });
+const navLinks = $$('#index a');
+addEventListener('scroll', () => {
+  const h = document.documentElement;
+  $('#progress').style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + '%';
+  let cur = 0; secs.forEach((s, i) => { if (s.getBoundingClientRect().top < innerHeight * .45) cur = i; });
+  navLinks.forEach((a, i) => a.classList.toggle('on', i === cur));
+}, { passive: true });
+
+/* ---------- time since start ---------- */
+function since() {
+  const now = new Date();
+  let m = (now.getFullYear() - START.getFullYear()) * 12 + now.getMonth() - START.getMonth();
+  return { y: Math.floor(m / 12), m: m % 12, total: m };
+}
+function yWord(n) { const a = n % 10, b = n % 100; if (a === 1 && b !== 11) return 'год'; if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return 'года'; return 'лет'; }
+{ const s = since(); $('#tMine').textContent = `≈ ${s.y} ${yWord(s.y)} ${s.m} мес.`; }
+
+/* =========================================================
+   СИМУЛЯТОР
+   ========================================================= */
+(() => {
+  const stage = $('#simStage'), btn = $('#holdBtn');
+  const neckG = $('#neckG'), headG = $('#headG2'), faceG = $('#faceG'), jaw = $('#jawShade');
+  const corset = $('#corset'), arrow = $('#impArrow'), mus = $('#neckMus');
+  const status = $('#simStatus'), msg = $('#simMsg'), flash = $('#simFlash');
+  const S = { rot: { x: 0, v: 0 }, yaw: { x: 0, v: 0 }, pit: { x: 0, v: 0 } };
+  const EXT = [
+    { n: 'влево', rot: -38, yaw: -24, pit: 6 },
+    { n: 'вправо', rot: 38, yaw: 24, pit: 6 },
+    { n: 'назад и вверх', rot: 0, yaw: 0, pit: -34 },
+  ];
+  let holding = false, target = null, k = 60, d = 12;
+  let stamina = 100, pain = 60, holdT = 0, jerks = 0, nextJerk = 1.5, visible = true, lockMsgShown = false;
+
+  function pickExtreme() {
+    const e = { ...EXT[Math.floor(Math.random() * EXT.length)] };
+    if (e.pit < 0) { const s = Math.random() < .5 ? -1 : 1; e.rot = 10 * s; e.yaw = 18 * s; }
+    return e;
+  }
+  function release(first) {
+    holding = false; btn.classList.remove('on');
+    target = pickExtreme(); k = 380; d = 15;
+    status.innerHTML = '<span class="em">🖐️</span><span style="color:var(--impulse)">Отпустил</span>';
+    if (!first) msg.innerHTML = `Голову унесло <b class="c-imp">${target.n}</b> и зажало. Чтобы вернуть, зажми снова.`;
+    holdT = 0; lockMsgShown = false;
+    stage.classList.add('free'); stage.classList.remove('holding');
+  }
+  function press() {
+    if (holding) return;
+    holding = true; btn.classList.add('on');
+    target = { rot: 0, yaw: 0, pit: 0 }; k = 55; d = 11;
+    status.innerHTML = '<span class="em">✊</span><span style="color:var(--hold)">Держу сам</span>';
+    msg.innerHTML = 'Держишь. Теперь попробуй заниматься чем-то ещё, например читать дальше. И следи за рывками.';
+    nextJerk = rnd(.6, 2);
+  }
+  release(true);
+  S.rot.x = target.rot; S.yaw.x = target.yaw; S.pit.x = target.pit;
+
+  btn.addEventListener('pointerdown', e => { e.preventDefault(); btn.setPointerCapture(e.pointerId); press(); });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => btn.addEventListener(ev, () => holding && release()));
+  btn.addEventListener('contextmenu', e => e.preventDefault());
+  new IntersectionObserver(es => { visible = es[0].isIntersecting; if (!visible && holding) release(); }, { threshold: .3 }).observe($('#sim'));
+  addEventListener('keydown', e => { if (e.code === 'Space' && visible && !e.repeat) { e.preventDefault(); press(); } else if (e.code === 'Space' && visible) e.preventDefault(); });
+  addEventListener('keyup', e => { if (e.code === 'Space' && holding) release(); });
+
+  function jerk() {
+    const s = Math.random() < .5 ? -1 : 1;
+    S.rot.v += s * rnd(90, 190) * (1.2 - stamina / 200);
+    S.yaw.v += rnd(-120, 120);
+    if (Math.random() < .3) S.pit.v -= rnd(60, 140);
+    jerks++; $('#tJerk').textContent = jerks;
+    flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go');
+  }
+
+  const fmt = t => String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(Math.floor(t % 60)).padStart(2, '0');
+  let last = performance.now(), tt = 0;
+  function frame(now) {
+    const dt = Math.min(.033, (now - last) / 1000); last = now; tt += dt;
+    for (const key of ['rot', 'yaw', 'pit']) {
+      const s = S[key]; const a = k * (target[key] - s.x) - d * s.v; s.v += a * dt; s.x += s.v * dt;
+    }
+    if (holding) {
+      holdT += dt; stamina = Math.max(6, stamina - dt * 2.4); pain = Math.max(28, pain - dt * 7);
+      nextJerk -= dt;
+      if (nextJerk <= 0) { jerk(); nextJerk = rnd(.7, 3.2) * (.35 + stamina / 130); }
+      if (stamina <= 6.5 && !lockMsgShown) { lockMsgShown = true; msg.innerHTML = '<b class="c-imp">Силы кончились.</b> Отпустить всё равно нельзя: голову тут же заломит. У меня так каждый день.'; }
+      $('#tHold').textContent = fmt(holdT);
+    } else {
+      stamina = Math.min(100, stamina + dt * 1.1); pain = Math.min(100, pain + dt * 9);
+    }
+    // дрожь
+    const trem = holding ? (1 - stamina / 100) * 1.6 : 1.4;
+    const r = S.rot.x + Math.sin(tt * 37) * trem * .6 + Math.sin(tt * 23) * trem * .4;
+    const y = S.yaw.x, p = S.pit.x;
+    neckG.setAttribute('transform', `rotate(${r * .4} 200 306)`);
+    headG.setAttribute('transform', `rotate(${r * .6} 200 232) translate(${y * .15} ${p * .3})`);
+    faceG.setAttribute('transform', `translate(${y} ${p * .9})`);
+    jaw.setAttribute('opacity', clamp(-p / 34, 0, 1) * .9);
+    corset.setAttribute('opacity', holding ? .55 + Math.sin(tt * 6) * .25 : 0);
+    const tense = holding ? 'var(--hold)' : 'var(--impulse)';
+    mus.setAttribute('stroke', tense); mus.setAttribute('opacity', .55 + Math.abs(Math.sin(tt * 9)) * .45);
+    if (!holding && target) {
+      arrow.setAttribute('opacity', .9);
+      const ang = target.pit < 0 ? 0 : (target.rot < 0 ? -60 : 60);
+      arrow.setAttribute('transform', `rotate(${ang} 200 230)`);
+    } else arrow.setAttribute('opacity', 0);
+    $('#stBar').style.width = stamina + '%'; $('#stTxt').textContent = Math.round(stamina);
+    $('#pnBar').style.width = pain + '%'; $('#pnTxt').textContent = Math.round(pain);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* =========================================================
+   03 МЕХАНИЗМ: расслабить мышцы
+   ========================================================= */
+(() => {
+  const bar = $('#tBar'), tag = $('#relaxTag'); let v = 82, relaxing = false;
+  $('#relaxBtn').addEventListener('click', () => {
+    v = 18; relaxing = true; tag.setAttribute('opacity', 1);
+    $('#relaxBtn').textContent = 'Ещё раз';
+  });
+  function tick() {
+    if (v < 82) { v = Math.min(82, v + 0.27); if (v > 60) tag.setAttribute('opacity', 0); }
+    const j = Math.random() < .03 ? rnd(4, 9) : 0;
+    bar.style.width = Math.min(100, v + j) + '%';
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* =========================================================
+   04 ВИДЕО
+   ========================================================= */
+(() => {
+  const v = $('#vid'), wrap = $('#vWrap'), ind = $('#vInd');
+  const miss = () => wrap.classList.add('missing');
+  v.addEventListener('error', miss);
+  v.querySelectorAll('source').forEach(s => s.addEventListener('error', miss));
+  if (v.error) miss();
+  if (!VIDEO_MARKS.length) return;
+  ind.style.display = 'flex';
+  const upd = () => {
+    const t = v.currentTime; const m = VIDEO_MARKS.find(x => t >= x.from && t < x.to);
+    if (!m) { ind.style.opacity = 0; return; }
+    ind.style.opacity = 1;
+    ind.className = 'v-ind ' + m.state;
+    ind.innerHTML = m.state === 'hold' ? '<span class="em">✊</span><span>Держу сам</span>' : '<span class="em">🖐️</span><span>Отпустил, дальше само</span>';
+  };
+  v.addEventListener('timeupdate', upd); v.addEventListener('seeked', upd); upd();
+})();
+
+/* =========================================================
+   05 ДИСНЕЙЛЕНД
+   ========================================================= */
+(() => {
+  const ns = 'http://www.w3.org/2000/svg';
+  const mk = (tag, at, parent) => { const e = document.createElementNS(ns, tag); for (const k in at) e.setAttribute(k, at[k]); parent.appendChild(e); return e; };
+  const stars = $('#stars'); for (let i = 0; i < 60; i++) mk('circle', { cx: rnd(0, 800), cy: rnd(0, 220), r: rnd(.6, 1.8), opacity: rnd(.3, 1) }, stars);
+  const sp = $('#spokes'), cb = $('#cabins'); const cols = ['#ff4a3d', '#2ee6a6', '#38c8ff', '#ff3d8f', '#ffb21e', '#9f7bff'];
+  const cabins = [];
+  for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; mk('line', { x1: 0, y1: 0, x2: Math.cos(a) * 130, y2: Math.sin(a) * 130 }, sp); cabins.push({ a, el: mk('rect', { width: 20, height: 16, rx: 4, fill: cols[i % 6] }, cb) }); }
+  const lights = $('#lights'); const bulbs = [];
+  for (let i = 0; i <= 32; i++) { const x = i * 25; const y = 40 + (x <= 400 ? Math.sin(x / 400 * Math.PI) * 25 : Math.sin((x - 400) / 400 * Math.PI) * 25); bulbs.push(mk('circle', { cx: x, cy: y, r: 3.5, fill: cols[i % 6] }, lights)); }
+  const balloons = $$('.balloons > g');
+  const park = $('#park'), veil = $('#veil'), th = $('#thermo'), cap = $('#caption'), wheel = $('#wheel');
+  const CAPS = [
+    [0, 'Ты здесь. Огни, музыка, друзья рядом. Ты ждал этого несколько месяцев.'],
+    [.2, 'Голова начинает гудеть. Ничего, пройдёт, думаешь ты.'],
+    [.45, 'Ломит всё тело. Друзья тянут на горки, и ты идёшь, чтобы не портить им день.'],
+    [.7, 'Ты смеёшься вместе со всеми. Смех выходит натянутым, и кто-то спрашивает, всё ли у тебя нормально.'],
+    [.9, 'Хочется лечь, и чтобы всё прекратилось. Вокруг праздник, о котором ты мечтал. Тебе плохо прямо сейчас.'],
+  ];
+  let t = 0, ang = 0, last = performance.now(), capIdx = 0;
+  $('#temp').addEventListener('input', e => {
+    t = e.target.value / 100;
+    th.textContent = (36.6 + t * 2.9).toFixed(1).replace('.', ',') + '°';
+    th.style.color = t < .3 ? 'var(--text)' : t < .65 ? 'var(--heat)' : 'var(--impulse)';
+    park.style.filter = `saturate(${1 - t * .88}) blur(${t * 2.2}px) brightness(${1 - t * .3}) contrast(${1 - t * .15})`;
+    veil.style.opacity = t * .85;
+    let i = 0; CAPS.forEach((c, j) => { if (t >= c[0]) i = j; });
+    if (i !== capIdx) { capIdx = i; cap.style.opacity = 0; setTimeout(() => { cap.textContent = CAPS[i][1]; cap.style.opacity = 1; }, 200); }
+  });
+  function loop(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    ang += dt * (14 * (1 - t * .9));
+    wheel.setAttribute('transform', `rotate(${ang})`);
+    cabins.forEach(c => { const a = c.a + ang * Math.PI / 180; c.el.setAttribute('x', Math.cos(a) * 130 - 10); c.el.setAttribute('y', Math.sin(a) * 130 - 2); });
+    bulbs.forEach((b, i) => b.setAttribute('opacity', (1 - t * .8) * (.5 + .5 * Math.sin(now / 300 + i))));
+    balloons.forEach((b, i) => b.setAttribute('transform', `translate(0 ${Math.sin(now / 900 + i) * 6 * (1 - t)})`));
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* =========================================================
+   06 РУКА
+   ========================================================= */
+(() => {
+  const STEPS = [
+    { do: 'Вытяни руку перед собой и держи. Попробуй прямо сейчас, я засеку время.',
+      c: 'var(--hold)', t: 'Для меня это', m: 'Так я держу голову. Весь день: когда разговариваю, ем, работаю, отдыхаю. Рука хотя бы может опуститься, когда устанет.', timer: true, label: 'держу' },
+    { do: 'Положи сверху вторую руку и дави вниз. Первой рукой сопротивляйся, не давай себя опустить.',
+      c: 'var(--impulse)', t: 'Для меня это', m: 'Вторая рука: сигнал, который тянет голову в крайнее положение. Первая рука: я. Эта борьба идёт каждую минуту, и вторая рука никогда не устаёт.', label: 'борьба' },
+    { do: 'Перестань сопротивляться. Второй рукой опусти первую и заведи её за спину, до боли. Первая дальше уже не идёт. Вторая продолжает давить.',
+      c: 'var(--pain)', t: 'Для меня это', m: 'Так бывает, когда я отпускаю голову. Её заламывает в крайнее положение и держит там. Чтобы вернуть, надо снова бороться.', label: 'заломило' },
+  ];
+  const copy = $('#armCopy'); let step = 0, stepT = 0;
+  let timerOn = false, t0 = 0, tid = null;
+  function render() {
+    const s = STEPS[step];
+    copy.innerHTML = `<p class="do">${s.do}</p>
+      <div class="map"><small style="color:${s.c}">${s.t}</small><p>${s.m}</p></div>
+      ${s.timer ? `<div class="timer"><button class="btn" id="tBtn">${timerOn ? 'Устал(а)' : 'Засечь время'}</button><span class="t" id="tVal">0:00</span></div><p class="small" id="tRes" style="margin-top:10px"></p>` : ''}`;
+    if (s.timer) $('#tBtn').addEventListener('click', toggleTimer);
+    $$('.step-btn').forEach((b, i) => b.classList.toggle('on', i === step));
+    $('#armLabel').textContent = s.label; $('#armLabel').setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue(s.c.slice(4, -1)));
+    stepT = 0;
+  }
+  function toggleTimer() {
+    if (!timerOn) { timerOn = true; t0 = Date.now(); $('#tBtn').textContent = 'Устал(а)'; $('#tRes').textContent = '';
+      tid = setInterval(() => { const s = (Date.now() - t0) / 1000; $('#tVal').textContent = Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0'); }, 200);
+    } else { timerOn = false; clearInterval(tid); const s = Math.round((Date.now() - t0) / 1000); $('#tBtn').textContent = 'Ещё раз';
+      $('#tRes').innerHTML = `Ты продержал(а) <b style="color:#fff">${Math.floor(s / 60)} мин ${s % 60} с</b>. Мне так нужно с утра до ночи, каждый день, много лет.`; }
+  }
+  $$('.step-btn').forEach(b => b.addEventListener('click', () => { step = +b.dataset.step; if (timerOn) { timerOn = false; clearInterval(tid); } render(); }));
+  render();
+
+  const SA = { x: 192, y: 118 }, SB = { x: 182, y: 113 }, LA = 132, L1 = 76, L2 = 76;
+  const aL = $('#aL'), aH = $('#aHand'), bU = $('#bU'), bF = $('#bF'), bH = $('#bHand'), armB = $('#armB');
+  const dn = $('#arrDown'), up = $('#arrUp'), glow = $('#painGlow');
+  let ang = 0, bVis = 0, last = performance.now(), tt = 0;
+  const ease = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  function ik(sx, sy, tx, ty) {
+    let dx = tx - sx, dy = ty - sy, dist = Math.hypot(dx, dy); const base = Math.atan2(dy, dx);
+    dist = Math.min(dist, L1 + L2 - .5);
+    const A = Math.acos(clamp((L1 * L1 + dist * dist - L2 * L2) / (2 * L1 * dist), -1, 1));
+    const a1 = base - A; const ex = sx + L1 * Math.cos(a1), ey = sy + L1 * Math.sin(a1);
+    return { ex, ey, hx: sx + dist * Math.cos(base), hy: sy + dist * Math.sin(base) };
+  }
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now; tt += dt; stepT += dt;
+    let target = 0, tb = 0, dnO = 0, upO = 0, gl = 0;
+    if (step === 0) { target = Math.min(9, stepT * .25) + Math.sin(tt * 30) * Math.min(1.5, stepT * .05); tb = 0; }
+    if (step === 1) { target = 3 + Math.sin(tt * 3) * 3 + Math.sin(tt * 41) * 1.2 + (Math.random() < .02 ? rnd(4, 10) : 0); tb = 1; dnO = 1; upO = 1; }
+    if (step === 2) { const p = ease(clamp((stepT - .4) / 2, 0, 1)); target = p * 152 + (p >= 1 ? Math.sin(tt * 35) * 1.2 : 0); tb = 1; dnO = p < 1 ? 1 : .6; gl = p >= 1 ? .35 + Math.sin(tt * 5) * .25 : p * .3; }
+    ang = reduce ? target : lerp(ang, target, step === 2 ? 1 : Math.min(1, dt * 10));
+    bVis = lerp(bVis, tb, Math.min(1, dt * 6));
+    const r = ang * Math.PI / 180, cx = Math.cos(r), cy = Math.sin(r);
+    const hx = SA.x + LA * cx, hy = SA.y + LA * cy;
+    aL.setAttribute('x1', SA.x); aL.setAttribute('y1', SA.y); aL.setAttribute('x2', hx); aL.setAttribute('y2', hy);
+    aH.setAttribute('cx', hx); aH.setAttribute('cy', hy);
+    // точка давления (над запястьем)
+    const px = SA.x + 104 * cx + 14 * cy, py = SA.y + 104 * cy - 14 * cx;
+    const rest = { x: SB.x + 30, y: SB.y + 140 };
+    const tx = lerp(rest.x, px, bVis), ty = lerp(rest.y, py, bVis);
+    const s = ik(SB.x, SB.y, tx, ty);
+    bU.setAttribute('x1', SB.x); bU.setAttribute('y1', SB.y); bU.setAttribute('x2', s.ex); bU.setAttribute('y2', s.ey);
+    bF.setAttribute('x1', s.ex); bF.setAttribute('y1', s.ey); bF.setAttribute('x2', s.hx); bF.setAttribute('y2', s.hy);
+    bH.setAttribute('cx', s.hx); bH.setAttribute('cy', s.hy);
+    armB.setAttribute('opacity', .25 + bVis * .7); bH.setAttribute('opacity', .25 + bVis * .75);
+    const ax = SA.x + 104 * cx, ay = SA.y + 104 * cy;
+    dn.setAttribute('transform', `translate(${ax} ${ay}) rotate(${ang})`); dn.setAttribute('opacity', dnO * bVis);
+    up.setAttribute('transform', `translate(${ax} ${ay}) rotate(${ang})`); up.setAttribute('opacity', upO);
+    glow.setAttribute('opacity', gl);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* =========================================================
+   07 ВНИМАНИЕ
+   ========================================================= */
+(() => {
+  const busy = ['Держать голову', 'Ловить рывки', 'Боль и зажатость', 'Следить за лицом', 'Найти положение, где легче'];
+  const freeN = ['Разговор', 'Учёба, работа', 'Шутки, эмоции', 'Планы', 'Люди вокруг', 'Мечты', 'Удовольствие', 'Память', 'Что угодно ещё'];
+  const box = $('#slots'); const els = [];
+  for (let i = 0; i < 9; i++) { const d = document.createElement('div'); d.className = 'slot'; box.appendChild(d); els.push(d); }
+  let mode = 'norm', jt = null;
+  function set(m) {
+    mode = m;
+    $$('.toggle button').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+    els.forEach((el, i) => {
+      setTimeout(() => {
+        if (m === 'me' && i < busy.length) { el.className = 'slot busy'; el.textContent = busy[i]; }
+        else { el.className = 'slot free'; el.textContent = m === 'me' ? freeN[i - busy.length] : freeN[i]; }
+      }, i * 70);
+    });
+    $('#slotsFree').textContent = m === 'me' ? `${9 - busy.length} свободно` : '9 свободно';
+    clearInterval(jt);
+    if (m === 'me') jt = setInterval(() => { const el = els[Math.floor(Math.random() * busy.length)]; el.classList.remove('j'); void el.offsetWidth; el.classList.add('j'); }, 700);
+  }
+  $$('.toggle button').forEach(b => b.addEventListener('click', () => set(b.dataset.mode)));
+  set('norm');
+})();
+
+/* =========================================================
+   08 ТЕЛО
+   ========================================================= */
+(() => {
+  const P = [
+    { x: 142, y: 192, c: '#ff3d8f', t: 'Под ухом, у челюсти', d: 'Постоянная зажатость под ухом, у края челюсти и выше. Ощущение, будто там всё стянуто.' },
+    { x: 262, y: 222, c: '#9f7bff', t: 'Подзатылочные мышцы (сзади)', d: 'Работают без отдыха. Можно лечь и надавить на них руками, станет легче на пару минут.' },
+    { x: 222, y: 262, c: '#ff4a3d', t: 'Грудино-ключично-сосцевидные', d: 'Поворачивают и наклоняют голову. В работе обе стороны.' },
+    { x: 182, y: 292, c: '#ff8fb8', t: 'Платизма', d: 'Тонкая мышца спереди шеи, она связана с нижней частью лица. Из-за её натяжения у меня дрожат губы.' },
+    { x: 92, y: 322, c: '#ff9f43', t: 'Трапеция и все остальные', d: 'Трапеция, глубокие мышцы шеи и почти всё вокруг. Поэтому ботокс в пару мышц мне не подходит.' },
+    { x: 288, y: 150, c: '#38c8ff', t: 'Ухо и самолёт', d: 'Там, где всё зажато, проходит евстахиева труба. Она выравнивает давление в ухе. Когда самолёт снижается, у меня оно не выравнивается, и боль сводит с ума.' },
+    { x: 168, y: 246, c: '#ffb21e', t: 'Сосуды и нервы', d: 'Шея пережата, кровообращение хуже. Нет чувства опоры, иногда заносит.' },
+  ];
+  const ns = 'http://www.w3.org/2000/svg', layer = $('#hsLayer'), list = $('#pts');
+  const gs = [], items = [];
+  P.forEach((p, i) => {
+    const g = document.createElementNS(ns, 'g'); g.setAttribute('class', 'hs'); g.setAttribute('transform', `translate(${p.x} ${p.y})`);
+    g.innerHTML = `<circle class="ring" r="12" fill="${p.c}" style="animation-delay:${i * .3}s"/><circle class="core" r="12" fill="${p.c}" stroke="#000" stroke-width="2"/><text text-anchor="middle" dy="4.5">${i + 1}</text>`;
+    layer.appendChild(g); gs.push(g);
+    const b = document.createElement('button'); b.className = 'pt'; b.style.setProperty('--c', p.c);
+    b.innerHTML = `<span class="n">${i + 1}</span><div><b>${p.t}</b><span>${p.d}</span></div>`;
+    list.appendChild(b); items.push(b);
+    const on = () => { gs.forEach((x, j) => x.classList.toggle('on', j === i)); items.forEach((x, j) => x.classList.toggle('on', j === i)); };
+    g.addEventListener('click', on); b.addEventListener('click', on);
+  });
+  items[0].click();
+})();
+
+/* =========================================================
+   09 ГРАФИК ВОЛНЕНИЯ
+   ========================================================= */
+(() => {
+  const cv = $('#cv'), ctx = cv.getContext('2d'), wrap = $('#chart'), st = $('#chartState');
+  let W, H, dpr; const N = 220; const buf = Array(N).fill(62);
+  function size() { dpr = devicePixelRatio || 1; W = cv.clientWidth; H = cv.clientHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  size(); addEventListener('resize', size);
+  let ar = 0, val = 62, acc = 0, last = performance.now(), visible = false;
+  new IntersectionObserver(es => visible = es[0].isIntersecting).observe(wrap);
+  $('#arousal').addEventListener('input', e => ar = e.target.value / 100);
+  const CAP = 86, NORM = 10;
+  const Y = v => H - 16 - (v / 100) * (H - 32);
+  function step() {
+    const base = 60 + ar * 30;
+    val += (base - val) * .08 + rnd(-2.5, 2.5) * (1 + ar * 2);
+    if (Math.random() < .05 + ar * .1) val += rnd(6, 14 + ar * 14);
+    val = clamp(val, 0, 100);
+    buf.push(val); buf.shift();
+  }
+  function draw(now) {
+    const dt = (now - last) / 1000; last = now; acc += dt;
+    while (acc > 1 / 40) { step(); acc -= 1 / 40; }
+    if (visible) {
+      ctx.clearRect(0, 0, W, H);
+      ctx.strokeStyle = '#1f1f28'; ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) { const y = Y(i * 25); ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+      ctx.setLineDash([6, 6]); ctx.strokeStyle = '#ff4a3d'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, Y(CAP)); ctx.lineTo(W, Y(CAP)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = '#ff4a3d'; ctx.font = '600 12px Inter, sans-serif'; ctx.fillText('предел мышц', 8, Y(CAP) - 8);
+      ctx.strokeStyle = '#5e5e6c'; ctx.lineWidth = 2; ctx.beginPath();
+      for (let i = 0; i < N; i++) { const x = i / (N - 1) * W; const v = NORM + Math.sin(i * .3 + now / 900) * 1.5; i ? ctx.lineTo(x, Y(v)) : ctx.moveTo(x, Y(v)); } ctx.stroke();
+      const g = ctx.createLinearGradient(0, Y(100), 0, Y(0)); g.addColorStop(0, 'rgba(255,74,61,.35)'); g.addColorStop(1, 'rgba(255,178,30,0)');
+      ctx.beginPath(); ctx.moveTo(0, Y(0));
+      for (let i = 0; i < N; i++) ctx.lineTo(i / (N - 1) * W, Y(buf[i]));
+      ctx.lineTo(W, Y(0)); ctx.closePath(); ctx.fillStyle = g; ctx.fill();
+      ctx.lineWidth = 3;
+      for (let i = 1; i < N; i++) { ctx.strokeStyle = buf[i] > CAP ? '#ff4a3d' : '#ffb21e'; ctx.beginPath(); ctx.moveTo((i - 1) / (N - 1) * W, Y(buf[i - 1])); ctx.lineTo(i / (N - 1) * W, Y(buf[i])); ctx.stroke(); }
+      const over = buf.slice(-14).some(v => v > CAP);
+      wrap.classList.toggle('shake', over && !reduce);
+      st.innerHTML = over ? '<span class="c-imp">Перешло предел: сильная тряска</span>' : ar < .15 ? '<span class="c-heat">Покой. Шея всё равно работает на 60%</span>' : '<span class="c-heat">На грани</span>';
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+
+/* =========================================================
+   10 УЛЫБКА
+   ========================================================= */
+(() => {
+  const mIn = $('#mIn'), mOut = $('#mOut'), g = $('#mOutG'), btn = $('#smileBtn');
+  let on = false, raf = null, t0 = 0;
+  function wob(now) {
+    const t = (now - t0) / 1000; const p = Math.min(1, t / .6);
+    const l = 132 - p * 6 + Math.sin(now / 37) * 3 * p, r = 132 - p * 1 + Math.sin(now / 29 + 1) * 2.4 * p;
+    const c = 4 + p * 10 + Math.sin(now / 53) * 5 * p;
+    mOut.setAttribute('d', `M70 ${l.toFixed(1)} Q100 ${(Math.max(l, r) + c).toFixed(1)} 130 ${r.toFixed(1)}`);
+    if (on) raf = requestAnimationFrame(wob);
+  }
+  btn.addEventListener('click', () => {
+    on = !on;
+    if (on) {
+      mIn.setAttribute('d', 'M66 124 q34 40 68 0'); $('#eyeL1').setAttribute('d', 'M66 88 q10 -10 20 0'); $('#eyeR1').setAttribute('d', 'M114 88 q10 -10 20 0');
+      g.classList.add('shake'); t0 = performance.now(); raf = requestAnimationFrame(wob); btn.textContent = 'Перестать';
+    } else {
+      cancelAnimationFrame(raf); mIn.setAttribute('d', 'M70 132 q30 4 60 0'); $('#eyeL1').setAttribute('d', 'M66 86 q10 0 20 0'); $('#eyeR1').setAttribute('d', 'M114 86 q10 0 20 0');
+      mOut.setAttribute('d', 'M70 132 q30 4 60 0'); g.classList.remove('shake'); btn.textContent = 'Улыбнуться';
+    }
+  });
+})();
+
+/* =========================================================
+   11 ВРЕМЯ
+   ========================================================= */
+(() => {
+  const box = $('#years'), now = new Date(); const s = since();
+  const cells = [];
+  for (let y = START.getFullYear(); y <= now.getFullYear(); y++) {
+    const row = document.createElement('div'); row.className = 'yr';
+    row.innerHTML = `<b>${y}</b><div class="months"></div>`;
+    const ms = row.querySelector('.months');
+    for (let m = 0; m < 12; m++) {
+      const c = document.createElement('div'); c.className = 'mo'; ms.appendChild(c);
+      const d = new Date(y, m, 1);
+      if (y === now.getFullYear() && m === now.getMonth()) cells.push([c, 'now']);
+      else if (d < now && d >= START) cells.push([c, 'f']);
+    }
+    box.appendChild(row);
+  }
+  const big = $('#monthsBig'); big.textContent = s.total;
+  let done = false;
+  new IntersectionObserver(es => {
+    if (!es[0].isIntersecting || done) return; done = true;
+    cells.forEach(([c, cls], i) => setTimeout(() => c.classList.add(cls), reduce ? 0 : i * 14));
+    if (!reduce) { let k = 0; const iv = setInterval(() => { k += Math.ceil(s.total / 60); if (k >= s.total) { k = s.total; clearInterval(iv); } big.textContent = k; }, 30); }
+  }, { threshold: .25 }).observe(box);
+})();
+
+/* =========================================================
+   12 ФРАЗЫ
+   ========================================================= */
+(() => {
+  const C = [
+    ['Ты же молодой, всё впереди', 'Я как раз вижу, как быстро уходит время. А я всё там же, с той же шеей.'],
+    ['Университет лучшее время в жизни', 'У меня его не было. Были только эти мучения.'],
+    ['Просто расслабься', 'Если я расслаблюсь, голову унесёт в крайнее положение. Расслабиться мне нельзя ни на секунду.'],
+    ['Это у тебя от нервов', 'Сигнал есть всегда, в любом настроении. Нервы делают хуже, причина в другом.'],
+    ['Сходи на массаж или к мануальщику', 'Ходил, годами. Мышцы расслабляются на пару минут, сигнал остаётся.'],
+    ['Со стороны же ничего не видно', 'Не видно, потому что я держу. Всё время, пока ты со мной разговариваешь.'],
+  ];
+  const box = $('#cards');
+  C.forEach(([f, b]) => {
+    const d = document.createElement('div'); d.className = 'card reveal';
+    d.innerHTML = `<div class="card-in"><div class="card-f"><q>${f}</q><small>нажми, чтобы перевернуть</small></div><div class="card-b"><p>${b}</p><small>как это слышу я</small></div></div>`;
+    d.addEventListener('click', () => d.classList.toggle('flip'));
+    box.appendChild(d); io.observe(d);
+  });
+})();
+</script>
+</body>
+</html>
